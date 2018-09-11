@@ -7,7 +7,7 @@ import java.io.IOException;
 public class Escrevedor {
 
 	private final static String userHomePath = System.getProperty("user.home");
-	private final static String filePath = userHomePath + File.separator + "Desktop" + File.separator
+	private final static String filePath = userHomePath + File.separator
 			+ "repositorioArquivos" + File.separator;
 
 	private File arquivo;
@@ -19,6 +19,7 @@ public class Escrevedor {
 
 		if (!arquivo.exists()) {
 			try {
+				new File(filePath).mkdirs();
 				arquivo.createNewFile();
 				escreveNoArquivo(cabecalho);
 			} catch (IOException e) {
