@@ -1,6 +1,5 @@
 const props = require('./constants');
 const fm = require('./fileManager');
-const Person = require('./person');
 
 const lineArrayToPersonConverter = require('./functions').lineArrayToPersonConverter;
 const personMale = require('./functions').personMale;
