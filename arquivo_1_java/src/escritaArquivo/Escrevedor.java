@@ -15,7 +15,7 @@ public class Escrevedor {
 	public Escrevedor(String cabecalho) {
 		System.out.println("diretorio do usuario: " + userHomePath);
 		System.out.println("diretorio do arquivo: " + filePath);
-		this.arquivo = new File(filePath + "arquivo1.txt");
+		this.arquivo = new File(filePath + "arquivo1.csv");
 
 		if (!arquivo.exists()) {
 			try {
