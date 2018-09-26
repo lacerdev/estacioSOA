@@ -1,0 +1,12 @@
+{"listaPessoas":[
+        {"name":"André Lacerda da Silva","age":"28","gender":"M"},
+        {"name":"João de Oliveira","age":"37","gender":"M"},
+        {"name":"Mariana Nunes","age":"27","gender":"F"},
+        {"name":"José Castanhares","age":"67","gender":"M"},
+        {"name":"Juliana Pêra","age":"34","gender":"F"},
+        {"name":"Katiane Henrique Serra","age":"17","gender":"F"},
+        {"name":"Mauro Carlos César","age":"22","gender":"M"}],
+            "qtdHomens":4,
+                "qtdMulheres":3,
+                    "idadeMediaHomens":38.5,
+                        "idadeMediaMulheres":26}
