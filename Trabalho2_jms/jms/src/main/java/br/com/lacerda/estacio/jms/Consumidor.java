@@ -1,11 +1,14 @@
 package br.com.lacerda.estacio.jms;
 
+import java.awt.Dimension;
 import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-
+import javax.swing.JPanel;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
@@ -47,12 +50,34 @@ public class Consumidor {
 		// Inicia a conexão.
 		conexao.start();
 
+		JPanel panel = new JPanel();
+		panel.setPreferredSize(new Dimension(500, 500));
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setContentPane(panel);
+		frame.setTitle("Fila de operações");
+		frame.pack();
+		// frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+		// Recebe uma mensagem.
 		while (true) {
-			// Recebe uma mensagem.
 			TextMessage mensagem = (TextMessage) consumidor.receive();
 			double resultado = 0;
 			try {
-				resultado = efetuaOperacao(mensagem.getText());
+				String[] msgDecomposta = decompoeMsg(mensagem.getText());
+				double numA = Double.parseDouble(msgDecomposta[0]);
+				Operacao operacao = Operacao.getOperacao(msgDecomposta[1]);
+				double numB = Double.parseDouble(msgDecomposta[2]);
+				resultado = calculaPorOperacao(numA, operacao, numB);
+
+				// // Exibe a mensagem recebida.
+				// JOptionPane.showMessageDialog(null, resultado, "RESULTADO:",
+				// JOptionPane.INFORMATION_MESSAGE);
+				JLabel log = new JLabel(String.format("%s %s %s = %f", msgDecomposta[0], operacao.getSimbolo(),
+						msgDecomposta[2], resultado));
+				panel.add(log);
+				frame.setContentPane(panel);
+				Thread.sleep(500);
 			} catch (IndexOutOfBoundsException e) {
 				JOptionPane.showMessageDialog(null, "Mensagem no formato inválido: " + mensagem.getText(), "Ops!",
 						JOptionPane.ERROR_MESSAGE);
@@ -61,24 +86,13 @@ public class Consumidor {
 						"Ops!", JOptionPane.ERROR_MESSAGE);
 			}
 
-			// Exibe a mensagem recebida.
-			JOptionPane.showMessageDialog(null, resultado, "RESULTADO:", JOptionPane.INFORMATION_MESSAGE);
-
-			Thread.sleep(500);
 		}
-
 		// // Fecha a conexão.
 		// conexao.close();
 	}
 
-	private static double efetuaOperacao(String msg) {
-		String[] valores = msg.split("\\|\\|");
-		double numA = Double.parseDouble(valores[0]);
-		Operacao operacao = Operacao.getOperacao(valores[1]);
-		double numB = Double.parseDouble(valores[2]);
-		
-		return calculaPorOperacao(numA, operacao, numB);
-
+	private static String[] decompoeMsg(String msg) {
+		return msg.split("\\|\\|");
 	}
 
 	private static double calculaPorOperacao(double numA, Operacao operacao, double numB) {
