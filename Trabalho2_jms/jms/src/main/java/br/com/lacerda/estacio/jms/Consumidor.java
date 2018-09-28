@@ -1,21 +1,24 @@
 package br.com.lacerda.estacio.jms;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.Properties;
 
+import javax.jms.Queue;
+import javax.jms.QueueConnection;
+import javax.jms.QueueConnectionFactory;
+import javax.jms.QueueReceiver;
+import javax.jms.QueueSession;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.QueueSession;
-import javax.jms.QueueReceiver;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 
 //Classe que consome mensagens a partir de uma fila.
 public class Consumidor {
@@ -49,34 +52,38 @@ public class Consumidor {
 
 		// Inicia a conexão.
 		conexao.start();
+		JTextArea textArea = new JTextArea();
+		JScrollPane scrollPane = new JScrollPane(textArea);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-		JPanel panel = new JPanel();
-		panel.setPreferredSize(new Dimension(500, 500));
 		JFrame frame = new JFrame();
+		frame.setLayout(new BorderLayout());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setContentPane(panel);
+		frame.setPreferredSize(new Dimension(280, 500));
+		frame.setContentPane(scrollPane);
 		frame.setTitle("Fila de operações");
 		frame.pack();
-		// frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		// Recebe uma mensagem.
 		while (true) {
 			TextMessage mensagem = (TextMessage) consumidor.receive();
 			double resultado = 0;
 			try {
+				JScrollBar vertical = scrollPane.getVerticalScrollBar();
+				vertical.setValue(vertical.getMaximum());
 				String[] msgDecomposta = decompoeMsg(mensagem.getText());
 				double numA = Double.parseDouble(msgDecomposta[0]);
 				Operacao operacao = Operacao.getOperacao(msgDecomposta[1]);
 				double numB = Double.parseDouble(msgDecomposta[2]);
 				resultado = calculaPorOperacao(numA, operacao, numB);
 
-				// // Exibe a mensagem recebida.
-				// JOptionPane.showMessageDialog(null, resultado, "RESULTADO:",
-				// JOptionPane.INFORMATION_MESSAGE);
-				JLabel log = new JLabel(String.format("%s %s %s = %f", msgDecomposta[0], operacao.getSimbolo(),
-						msgDecomposta[2], resultado));
-				panel.add(log);
-				frame.setContentPane(panel);
+				String resultadoOperacao = String.format("%s %s %s = %f", msgDecomposta[0], operacao.getSimbolo(),
+						msgDecomposta[2], resultado);
+				String texto = textArea.getText();
+				textArea.setText(
+						(texto == null || texto.isEmpty() ? resultadoOperacao : texto + "\r\n" + resultadoOperacao));
+
 				Thread.sleep(500);
 			} catch (IndexOutOfBoundsException e) {
 				JOptionPane.showMessageDialog(null, "Mensagem no formato inválido: " + mensagem.getText(), "Ops!",
